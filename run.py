@@ -26,10 +26,11 @@ dev_data_p = project_p + "data/dev/p1"
 
 # ---- infer -----
 th = 0.5
-batch_size = 1
+batch_size = 4
 # ckpt
 model_p_list = [
-    "/home/ao/Desktop/ieee/rubbish/epoch=170-step=62757.ckpt",
+    "/home/ao/Desktop/ieee/ckpt/epoch=287-step=105696.ckpt",
+    "/home/ao/Desktop/ieee/ckpt/epoch=170-step=62757.ckpt",
 ]
 
 
@@ -65,7 +66,7 @@ if __name__ == "__main__":
     with torch.inference_mode():
         for p in tqdm(test_loader):
             batch_ans = []
-            for path in tqdm(model_p_list):
+            for path in tqdm(model_p_list, leave=False):
                 # ---- model set ----
                 sar_model = SARModel.load_from_checkpoint(
                     path,
@@ -85,8 +86,8 @@ if __name__ == "__main__":
                 if torch.cuda.is_available():
                     p[0] = p[0].to("cuda")
 
-                # get one model ans
-                batch_ans.append(tta_model(p[0]))
+                # get one model ans and fetch to cpu 
+                batch_ans.append(tta_model(p[0]).to('cpu'))
 
             ans = sum(batch_ans) / len(batch_ans)
 
