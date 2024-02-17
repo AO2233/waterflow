@@ -15,8 +15,6 @@ import numpy as np
 from tqdm import tqdm
 import cv2
 from dataset import test_trans
-
-
 import ttach as tta
 
 # ------- 变量 ---------
@@ -32,7 +30,7 @@ batch_size = 1
 # ckpt
 model_p_list = [
     "/home/ao/Desktop/ieee/rubbish/epoch=170-step=62757.ckpt",
-    ]
+]
 
 
 # tta
@@ -48,8 +46,6 @@ tta_com = tta.Compose(
 )
 
 if __name__ == "__main__":
-  
-
     os.system("rm -f /home/ao/Desktop/ieee/rubbish/sub.zip")
     os.system("rm -f /home/ao/Desktop/ieee/rubbish/sub/* ")
 
@@ -59,18 +55,16 @@ if __name__ == "__main__":
 
     img_l = glob.glob(os.path.join(dev_data_p, "*.tif"))
     img_l.sort()
-    
+
     dataset = SARdataset(img_l, normal=True)
     dataset.transform = test_trans
 
     test_loader = DataLoader(dataset, batch_size=batch_size)
     # test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=os.cpu_count()-1)
 
-       
-    
     with torch.inference_mode():
         for p in tqdm(test_loader):
-            batch_ans=[]
+            batch_ans = []
             for path in tqdm(model_p_list):
                 # ---- model set ----
                 sar_model = SARModel.load_from_checkpoint(
@@ -86,16 +80,16 @@ if __name__ == "__main__":
                 tta_model = tta.SegmentationTTAWrapper(sar_model.model, tta_com)
                 if torch.cuda.is_available():
                     tta_model.to("cuda")
-                    
+
                 # ---- infer ----
                 if torch.cuda.is_available():
                     p[0] = p[0].to("cuda")
-                
+
                 # get one model ans
                 batch_ans.append(tta_model(p[0]))
 
-            ans = batch_ans.mean()
-                
+            ans = sum(batch_ans) / len(batch_ans)
+
             # p[1]
             pic = (ans.sigmoid() > th).float()
             for i_pic, index in zip(pic, p[1]):
