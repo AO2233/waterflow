@@ -26,21 +26,21 @@ def show_tiff(image, label=None, power=True):
     plt.tight_layout()
     plt.show()
 
+
 def show_tiff_id(idx, img_l, label_l=None, power=True):
     image = tf.imread(img_l[idx])
     image_label = None
     if label_l is not None:
         image_label = cv2.imread(label_l[idx])
     show_tiff(image, label=image_label, power=power)
-    
+
+
 def show_label(label, power=True):
     if power:
         label = 255 * (1 - label)
-    plt.figure(figsize=(12, 6)) 
+    plt.figure(figsize=(12, 6))
     plt.imshow(label, cmap="gray")
     plt.title(f"label")
     plt.axis("off")
     plt.tight_layout()
     plt.show()
-    
-    
