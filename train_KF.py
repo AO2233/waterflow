@@ -27,14 +27,16 @@ test_data_p = project_p + "data/Track1/val/images/"
 
 
 # --------- 参数 ---------
-max_ep = 400
+max_ep = 300
 val_rate = 0.1
 batch_size = 4
 
 # img_num = 1631
 
 ## callback pylighting model setting
-seed_everything(42, workers=True)
+
+SEED = 42
+seed_everything(SEED, workers=True)
 lr_monitor = LearningRateMonitor("epoch")
 progress_bar = RichProgressBar()
 model_summary = RichModelSummary(max_depth=2)
@@ -52,12 +54,12 @@ if __name__ == "__main__":
     # label_l = [project_p + f"data/Track1/train/labels/{i}.png" for i in range(img_num)]
 
     tt_dataset = SARdataset(img_l, label_l, mode="train", normal=True)
-    tv_dataset = SARdataset(img_l, label_l, mode="train", normal=True)
+    tv_dataset = copy.deepcopy(tt_dataset)
     tt_dataset.transform = train_trans
     tv_dataset.transform = test_trans
 
     kf_func = model_selection.KFold(
-        n_splits=int(1 / val_rate), random_state=42, shuffle=True
+        n_splits=int(1 / val_rate), random_state=SEED, shuffle=True
     )
     # kf_func = model_selection.KFold(n_splits = int(1/val_rate), shuffle=False)
 
