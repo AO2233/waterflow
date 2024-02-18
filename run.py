@@ -26,11 +26,11 @@ dev_data_p = project_p + "data/dev/p1"
 
 # ---- infer -----
 th = 0.5
-batch_size = 1
+batch_size = 16
 # ckpt
 model_p_list = [
-    "/home/ao/Desktop/ieee/ckpt/epoch=287-step=105696.ckpt",
-    "/home/ao/Desktop/ieee/ckpt/epoch=170-step=62757.ckpt",
+    "/home/ao/Desktop/ieee/rubbish/sar/c5aht82z/checkpoints/epoch=287-step=105696.ckpt",
+    "/home/ao/Desktop/ieee/rubbish/sar/lt2zc1hj/checkpoints/epoch=227-step=83676.ckpt",
 ]
 
 
@@ -60,7 +60,9 @@ if __name__ == "__main__":
     dataset = SARdataset(img_l, normal=True)
     dataset.transform = test_trans
 
-    test_loader = DataLoader(dataset, batch_size=batch_size, pin_memory=True, num_workers=os.cpu_count()-1)
+    test_loader = DataLoader(
+        dataset, batch_size=batch_size, pin_memory=True, num_workers=os.cpu_count() - 1
+    )
     # test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=os.cpu_count()-1)
 
     with torch.inference_mode():
@@ -86,8 +88,8 @@ if __name__ == "__main__":
                 if torch.cuda.is_available():
                     p[0] = p[0].to("cuda")
 
-                # get one model ans and fetch to cpu 
-                batch_ans.append(tta_model(p[0]).to('cpu'))
+                # get one model ans and fetch to cpu
+                batch_ans.append(tta_model(p[0]).to("cpu"))
 
             ans = sum(batch_ans) / len(batch_ans)
             # ans = torch.mean(torch.stack(batch_ans), dim=0)

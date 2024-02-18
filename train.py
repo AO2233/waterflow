@@ -23,7 +23,7 @@ test_data_p = project_p + "data/Track1/val/images/"
 
 
 # --------- 参数 ---------
-max_ep = 400
+max_ep = 200
 val_rate = 0.1
 batch_size = 4
 
@@ -33,7 +33,7 @@ batch_size = 4
 seed_everything(42, workers=True)
 lr_monitor = LearningRateMonitor("epoch")
 progress_bar = RichProgressBar()
-model_summary = RichModelSummary(max_depth=2)
+model_summary = RichModelSummary(max_depth=3)
 
 # ---------------------------
 
@@ -89,20 +89,20 @@ if __name__ == "__main__":
     )
 
     loss_checkpoint_callback = ModelCheckpoint(
-            verbose=True,
-            filename=f"val_loss"+'{epoch:02d}-{val_loss:02.0f}-{score_f1_val:04.0f}',
-            monitor="val_loss",
-            mode="min",
-            save_top_k=20,
-            save_last=True,
-            save_weights_only=True,
-            auto_insert_metric_name=True,
-            # every_n_epochs = max_ep//20,
-        )
+        verbose=True,
+        filename=f"val_loss_" + "{epoch}-{val_loss:.4f}-{score_f1_val:.4f}",
+        monitor="val_loss",
+        mode="min",
+        save_top_k=20,
+        save_last=True,
+        save_weights_only=True,
+        auto_insert_metric_name=True,
+        # every_n_epochs = max_ep//20,
+    )
 
     score_checkpoint_callback = ModelCheckpoint(
         verbose=True,
-        filename=f"val_score"+'{epoch:02d}-{val_loss:02.0f}-{score_f1_val:04.0f}',
+        filename=f"val_score_" + "{epoch}-{val_loss:.4f}-{score_f1_val:.4f}",
         monitor="score_f1_val",
         save_top_k=5,
         save_weights_only=True,
@@ -122,7 +122,13 @@ if __name__ == "__main__":
         gradient_clip_val=1.0,
         # accumulate_grad_batches = 1,
         # sync_batchnorm=True,
-        callbacks=[loss_checkpoint_callback, score_checkpoint_callback, lr_monitor, progress_bar, model_summary],
+        callbacks=[
+            loss_checkpoint_callback,
+            score_checkpoint_callback,
+            lr_monitor,
+            progress_bar,
+            model_summary,
+        ],
     )
 
     trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=val_loader)

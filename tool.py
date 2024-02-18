@@ -46,19 +46,20 @@ def show_label(label, power=True):
     plt.axis("off")
     plt.tight_layout()
     plt.show()
-    
-def check_sub(dir='sub', power=True):
+
+
+def check_sub(dir="sub", power=True):
     sub_pic = glob.glob(os.path.join(dir, "*.png"))
     sub_pic.sort()
-    
+
     assert len(sub_pic) >= 12
-    
+
     plt.figure(figsize=(16, 8))
     for i in range(12):
         label = cv2.imread(sub_pic[i], cv2.IMREAD_UNCHANGED)
         if power:
             label = 255 * (1 - label)
-        
+
         plt.subplot(3, 4, i + 1)
         plt.imshow(label, cmap="gray")
         plt.title(f"item {i+1}")

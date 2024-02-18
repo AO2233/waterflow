@@ -19,7 +19,7 @@ import ttach as tta
 import torch
 
 # ------- 变量 ---------
-project_p="/home/ao/Desktop/ieee/"
+project_p = "/home/ao/Desktop/ieee/"
 train_data_p = project_p + "data/Track1/train/images/"
 train_label_p = project_p + "data/Track1/train/labels/"
 test_data_p = project_p + "data/Track1/val/images/"
@@ -29,7 +29,7 @@ dev_data_p = project_p + "data/dev/p1"
 th = 0.5
 batch_size = 1
 # ckpt
-model_p = '/home/ao/Desktop/ieee/ckpt/epoch=227-step=83676.ckpt'
+model_p = "/home/ao/Desktop/ieee/ckpt/epoch=227-step=83676.ckpt"
 
 # tta
 
@@ -44,30 +44,31 @@ tta_com = tta.Compose(
 )
 
 if __name__ == "__main__":
-    
     os.system("rm -f /home/ao/Desktop/ieee/rubbish/sub.zip")
     os.system("rm -f /home/ao/Desktop/ieee/rubbish/sub/* ")
-    
+
     # img_l = glob.glob(os.path.join(train_data_p, '*.tif'))
     # label_l = glob.glob(os.path.join(train_label_p, '*.png'))
     # label_l.sort()
-    
+
     # ---- dataset ----
-    img_l = glob.glob(os.path.join(dev_data_p, '*.tif'))
+    img_l = glob.glob(os.path.join(dev_data_p, "*.tif"))
     img_l.sort()
-    
+
     dataset = SARdataset(img_l, normal=True)
     dataset.transform = test_trans
-    test_loader = DataLoader(dataset, batch_size=batch_size, pin_memory=True, num_workers=os.cpu_count()-1)
-    
-    sar_model=SARModel.load_from_checkpoint(
-        model_p, 
+    test_loader = DataLoader(
+        dataset, batch_size=batch_size, pin_memory=True, num_workers=os.cpu_count() - 1
+    )
+
+    sar_model = SARModel.load_from_checkpoint(
+        model_p,
         arch="UnetPlusPlus",
         encoder_name="timm-resnest269e",
         # encoder_name="resnet34",
-        in_channels=6, 
-        encoder_weights = 'imagenet'
-        )
+        in_channels=6,
+        encoder_weights="imagenet",
+    )
     sar_model.eval()
 
     # ---- tta_warpper ----
@@ -75,8 +76,8 @@ if __name__ == "__main__":
     if torch.cuda.is_available():
         tta_model.to("cuda")
 
-    # ---- infer ----   
-    with torch.inference_mode(): 
+    # ---- infer ----
+    with torch.inference_mode():
         for p in tqdm(test_loader):
             if torch.cuda.is_available():
                 p[0] = p[0].to("cuda")
@@ -87,8 +88,5 @@ if __name__ == "__main__":
                 data = i_pic[0].to("cpu")
                 image = data.numpy().astype(np.uint8)
                 cv2.imwrite("sub/" + f"{index+1631}_msk.png", image)
-    
+
     os.system("cd sub/ &&  zip -rv ../sub.zip *.png ")
-    
-    
-    

@@ -39,7 +39,7 @@ SEED = 42
 seed_everything(SEED, workers=True)
 lr_monitor = LearningRateMonitor("epoch")
 progress_bar = RichProgressBar()
-model_summary = RichModelSummary(max_depth=2)
+model_summary = RichModelSummary(max_depth=3)
 
 # ---------------------------
 
@@ -96,14 +96,14 @@ if __name__ == "__main__":
 
         # ------ wandb --------
         wandb_logger = WandbLogger(
-            project="sar",
+            project="KFP",
             # log_model="all",
             name=f"KF{i}",
         )
 
         loss_checkpoint_callback = ModelCheckpoint(
             verbose=True,
-            filename=f"val_loss_fold{i}"+'{epoch:02d}-{val_loss:02.0f}-{score_f1_val:04.0f}',
+            filename=f"val_loss_fold{i}_" + "{epoch}-{val_loss:.4f}-{score_f1_val:.4f}",
             monitor="val_loss",
             mode="min",
             save_top_k=20,
@@ -115,7 +115,8 @@ if __name__ == "__main__":
 
         score_checkpoint_callback = ModelCheckpoint(
             verbose=True,
-            filename=f"val_score_fold{i}"+'{epoch:02d}-{val_loss:02.0f}-{score_f1_val:04.0f}',
+            filename=f"val_score_fold{i}_"
+            + "{epoch}-{val_loss:.4f}-{score_f1_val:.4f}",
             monitor="score_f1_val",
             save_top_k=5,
             save_weights_only=True,
@@ -134,7 +135,13 @@ if __name__ == "__main__":
             gradient_clip_val=1.0,
             # accumulate_grad_batches = 1,
             # sync_batchnorm=True,
-            callbacks=[loss_checkpoint_callback, score_checkpoint_callback, lr_monitor, progress_bar, model_summary],
+            callbacks=[
+                loss_checkpoint_callback,
+                score_checkpoint_callback,
+                lr_monitor,
+                progress_bar,
+                model_summary,
+            ],
         )
 
         trainer.fit(
