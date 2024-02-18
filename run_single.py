@@ -29,7 +29,7 @@ dev_data_p = project_p + "data/dev/p1"
 th = 0.5
 batch_size = 1
 # ckpt
-model_p = '/home/ao/Desktop/ieee/ckpt/epoch=287-step=105696.ckpt'
+model_p = '/home/ao/Desktop/ieee/ckpt/epoch=227-step=83676.ckpt'
 
 # tta
 
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     
     dataset = SARdataset(img_l, normal=True)
     dataset.transform = test_trans
-    test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=os.cpu_count()-1)
+    test_loader = DataLoader(dataset, batch_size=batch_size, pin_memory=True, num_workers=os.cpu_count()-1)
     
     sar_model=SARModel.load_from_checkpoint(
         model_p, 

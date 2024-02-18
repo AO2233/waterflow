@@ -26,7 +26,7 @@ dev_data_p = project_p + "data/dev/p1"
 
 # ---- infer -----
 th = 0.5
-batch_size = 4
+batch_size = 1
 # ckpt
 model_p_list = [
     "/home/ao/Desktop/ieee/ckpt/epoch=287-step=105696.ckpt",
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     dataset = SARdataset(img_l, normal=True)
     dataset.transform = test_trans
 
-    test_loader = DataLoader(dataset, batch_size=batch_size)
+    test_loader = DataLoader(dataset, batch_size=batch_size, pin_memory=True, num_workers=os.cpu_count()-1)
     # test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, pin_memory=True, num_workers=os.cpu_count()-1)
 
     with torch.inference_mode():

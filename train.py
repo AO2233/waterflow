@@ -88,14 +88,26 @@ if __name__ == "__main__":
         name="test",
     )
 
-    checkpoint_callback = ModelCheckpoint(
+    loss_checkpoint_callback = ModelCheckpoint(
+            verbose=True,
+            filename=f"val_loss"+'{epoch:02d}-{val_loss:02.0f}-{score_f1_val:04.0f}',
+            monitor="val_loss",
+            mode="min",
+            save_top_k=20,
+            save_last=True,
+            save_weights_only=True,
+            auto_insert_metric_name=True,
+            # every_n_epochs = max_ep//20,
+        )
+
+    score_checkpoint_callback = ModelCheckpoint(
         verbose=True,
-        monitor="val_loss",
-        mode="min",
-        save_top_k=20,
-        save_last=True,
+        filename=f"val_score"+'{epoch:02d}-{val_loss:02.0f}-{score_f1_val:04.0f}',
+        monitor="score_f1_val",
+        save_top_k=5,
         save_weights_only=True,
-        # every_n_epochs = max_ep//20,
+        mode="max",
+        auto_insert_metric_name=True,
     )
 
     lr_monitor = LearningRateMonitor(logging_interval="epoch")
@@ -110,7 +122,7 @@ if __name__ == "__main__":
         gradient_clip_val=1.0,
         # accumulate_grad_batches = 1,
         # sync_batchnorm=True,
-        callbacks=[checkpoint_callback, lr_monitor, progress_bar, model_summary],
+        callbacks=[loss_checkpoint_callback, score_checkpoint_callback, lr_monitor, progress_bar, model_summary],
     )
 
     trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=val_loader)
