@@ -6,6 +6,7 @@ import albumentations as A
 import torch
 import glob
 import os
+import torchmetrics as tm
 
 
 def show_tiff(image, label=None, power=True):
@@ -28,14 +29,12 @@ def show_tiff(image, label=None, power=True):
     plt.tight_layout()
     plt.show()
 
-
 def show_tiff_id(idx, img_l, label_l=None, power=True):
     image = tf.imread(img_l[idx])
     image_label = None
     if label_l is not None:
         image_label = cv2.imread(label_l[idx])
     show_tiff(image, label=image_label, power=power)
-
 
 def show_label(label, power=True):
     if power:
@@ -46,7 +45,6 @@ def show_label(label, power=True):
     plt.axis("off")
     plt.tight_layout()
     plt.show()
-
 
 def check_sub(dir="sub", power=True):
     sub_pic = glob.glob(os.path.join(dir, "*.png"))
@@ -66,3 +64,19 @@ def check_sub(dir="sub", power=True):
         plt.axis("off")
     plt.tight_layout()
     plt.show()
+
+def read_img2tensor(path):
+    label = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+    return torch.tensor(label, dtype=torch.float32)
+
+
+# 用于修正 原版本的 F1Score zero-dive 等于0的问题
+
+warp_base_func = tm.F1Score(task="binary")
+def f1_func(pred,mask): 
+    if torch.all(mask == 0) and torch.all(pred == 0):
+        f1_score = torch.tensor(1.0)
+    else:
+        f1_score = warp_base_func(pred.flatten(), mask.flatten())
+    
+    return f1_score

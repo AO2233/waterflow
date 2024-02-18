@@ -9,6 +9,7 @@ import timm
 from transformers import Swinv2Config, Swinv2Model
 from torch import nn
 from transformers import get_cosine_schedule_with_warmup
+from tool import f1_func
 
 
 def loss_warp(output, mask):
@@ -54,7 +55,6 @@ class SARModel(L.LightningModule):
 
         sig_mask = output.sigmoid() > 0.5
         pred_mask = (sig_mask).float()
-        f1_func = tm.F1Score(task="binary").to("cuda")
         f1_score = f1_func(pred_mask.flatten(), mask.flatten())
 
         self.train_step_outputs.append(f1_score.cpu())
@@ -77,7 +77,6 @@ class SARModel(L.LightningModule):
 
         sig_mask = output.sigmoid() > 0.5
         pred_mask = (sig_mask).float()
-        f1_func = tm.F1Score(task="binary").to("cuda")
         f1_score = f1_func(pred_mask.flatten(), mask.flatten())
 
         self.validation_step_outputs.append(f1_score.cpu())
