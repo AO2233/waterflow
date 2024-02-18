@@ -90,6 +90,7 @@ if __name__ == "__main__":
                 batch_ans.append(tta_model(p[0]).to('cpu'))
 
             ans = sum(batch_ans) / len(batch_ans)
+            # ans = torch.mean(torch.stack(batch_ans), dim=0)
 
             # p[1]
             pic = (ans.sigmoid() > th).float()

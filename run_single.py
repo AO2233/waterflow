@@ -75,17 +75,18 @@ if __name__ == "__main__":
     if torch.cuda.is_available():
         tta_model.to("cuda")
 
-    # ---- infer ----    
-    for p in tqdm(test_loader):
-        if torch.cuda.is_available():
-            p[0] = p[0].to("cuda")
-        ans = tta_model(p)
-        pic = (ans.sigmoid() > th).float()
-        for i_pic, index in zip(pic, p[1]):
-            # i_pic -> (1, 512, 512)
-            data = i_pic[0].to("cpu")
-            image = data.numpy().astype(np.uint8)
-            cv2.imwrite("sub/" + f"{index+1631}_msk.png", image)
+    # ---- infer ----   
+    with torch.inference_mode(): 
+        for p in tqdm(test_loader):
+            if torch.cuda.is_available():
+                p[0] = p[0].to("cuda")
+            ans = tta_model(p[0])
+            pic = (ans.sigmoid() > th).float()
+            for i_pic, index in zip(pic, p[1]):
+                # i_pic -> (1, 512, 512)
+                data = i_pic[0].to("cpu")
+                image = data.numpy().astype(np.uint8)
+                cv2.imwrite("sub/" + f"{index+1631}_msk.png", image)
     
     os.system("cd sub/ &&  zip -rv ../sub.zip *.png ")
     
