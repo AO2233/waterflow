@@ -23,7 +23,7 @@ test_data_p = project_p + "data/Track1/val/images/"
 
 
 # --------- 参数 ---------
-max_ep = 200
+max_ep = 120
 val_rate = 0.1
 batch_size = 4
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     wandb_logger = WandbLogger(
         project="sar",
         # log_model="all",
-        name="test",
+        name="f1_fix_ep=120_lr=8e-5_wd=4e-3",
     )
 
     loss_checkpoint_callback = ModelCheckpoint(

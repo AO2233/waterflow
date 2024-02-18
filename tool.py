@@ -71,8 +71,11 @@ def read_img2tensor(path):
 
 
 # 用于修正 原版本的 F1Score zero-dive 等于0的问题
-
-warp_base_func = tm.F1Score(task="binary")
+if torch.cuda.is_available():
+    warp_base_func = tm.F1Score(task="binary").to('cuda')
+else:
+    warp_base_func = tm.F1Score(task="binary")
+    
 def f1_func(pred,mask): 
     if torch.all(mask == 0) and torch.all(pred == 0):
         f1_score = torch.tensor(1.0)
