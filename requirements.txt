@@ -1,0 +1,15 @@
+albumentations
+lightning
+matplotlib
+numpy
+opencv_python
+opencv_python_headless
+scikit_learn
+segmentation_models_pytorch
+tifffile
+timm
+torch
+torchmetrics
+tqdm
+transformers
+ttach

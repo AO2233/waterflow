@@ -116,7 +116,7 @@ class SARModel(L.LightningModule):
         )
 
     def configure_optimizers(self):
-        optimizer = optim.AdamW(self.parameters(), lr=8e-5, weight_decay=4e-3)
+        optimizer = optim.AdamW(self.parameters(), lr=3e-5, weight_decay=4e-3)
 
         scheduler = get_cosine_schedule_with_warmup(
             optimizer,

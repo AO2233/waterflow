@@ -27,7 +27,7 @@ test_data_p = project_p + "data/Track1/val/images/"
 
 
 # --------- 参数 ---------
-max_ep = 300
+max_ep = 360
 val_rate = 0.1
 batch_size = 4
 
@@ -71,7 +71,7 @@ if __name__ == "__main__":
         val_dataset = Subset(tv_dataset, val_index)
 
         train_loader = DataLoader(
-            train_set,
+            train_dataset,
             batch_size=batch_size,
             shuffle=True,
             pin_memory=True,
@@ -79,7 +79,7 @@ if __name__ == "__main__":
             drop_last=True,
         )
         val_loader = DataLoader(
-            val_set,
+            val_dataset,
             batch_size=batch_size * 2,
             shuffle=False,
             pin_memory=True,
