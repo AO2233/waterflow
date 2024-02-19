@@ -1,6 +1,9 @@
 # copy from run.py
 # to find a best th for inference
 
+# 历史代码 有问题版本
+# 此处 F1 是单张计算求 mean
+
 import glob
 import os
 
@@ -21,7 +24,7 @@ from dataset import test_trans
 import ttach as tta
 from tool import read_img2tensor
 import torchmetrics as tm
-from tool import f1_func
+from tool import f1_single_func
 import pickle
 
 # ------- param ------
@@ -129,7 +132,7 @@ if __name__ == "__main__":
                     # i_pic -> (1, 512, 512)
                     pred = i_pic[0].to("cpu")
                     mask = read_img2tensor(label_l[index])
-                    f1_score = f1_func(pred.flatten(), mask.flatten())
+                    f1_score = f1_single_func(pred.flatten(), mask.flatten())
                     f1_score_l.append(f1_score.item())
                     f1_score_dict[img_l[index.item()]] = f1_score.item()
                     f1_score_dict_sorted = dict(

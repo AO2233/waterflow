@@ -8,8 +8,8 @@ import segmentation_models_pytorch as smp
 import timm
 from transformers import Swinv2Config, Swinv2Model
 from torch import nn
+import torch
 from transformers import get_cosine_schedule_with_warmup
-from tool import f1_func
 
 
 def loss_warp(output, mask):
@@ -36,8 +36,14 @@ class SARModel(L.LightningModule):
         # self.loss_fn = nn.BCEWithLogitsLoss()
         self.loss_fn = loss_warp
 
-        self.validation_step_outputs = []
-        self.train_step_outputs = []
+        self.f1_func = tm.F1Score(task="binary")
+        if torch.cuda.is_available():
+            self.f1_func = tm.F1Score(task="binary")
+
+        self.validation_step_outputs_mask = []
+        self.validation_step_outputs_pre = []
+        self.train_step_outputs_mask = []
+        self.train_step_outputs_pre = []
 
     def forward(self, batch):
         output = self.model(batch[0])
@@ -55,9 +61,9 @@ class SARModel(L.LightningModule):
 
         sig_mask = output.sigmoid() > 0.5
         pred_mask = (sig_mask).float()
-        f1_score = f1_func(pred_mask.flatten(), mask.flatten())
 
-        self.train_step_outputs.append(f1_score.cpu())
+        self.train_step_outputs_mask.append(mask.flatten().to("cpu"))
+        self.train_step_outputs_pre.append(pred_mask.flatten().to("cpu"))
 
         self.log(
             "train_loss",
@@ -77,9 +83,9 @@ class SARModel(L.LightningModule):
 
         sig_mask = output.sigmoid() > 0.5
         pred_mask = (sig_mask).float()
-        f1_score = f1_func(pred_mask.flatten(), mask.flatten())
 
-        self.validation_step_outputs.append(f1_score.cpu())
+        self.validation_step_outputs_mask.append(mask.flatten().to("cpu"))
+        self.validation_step_outputs_pre.append(pred_mask.flatten().to("cpu"))
 
         self.log(
             "val_loss",
@@ -92,8 +98,13 @@ class SARModel(L.LightningModule):
         return val_loss
 
     def on_train_epoch_end(self):
-        f1_fin_train = np.array(self.train_step_outputs).mean()
-        self.train_step_outputs.clear()
+        all_mask = torch.cat(self.train_step_outputs_mask)
+        all_pre = torch.cat(self.train_step_outputs_pre)
+
+        f1_fin_train = self.f1_func(all_pre, all_mask)
+
+        self.train_step_outputs_mask.clear()
+        self.train_step_outputs_pre.clear()
 
         self.log(
             "score_f1_train",
@@ -104,8 +115,13 @@ class SARModel(L.LightningModule):
         )
 
     def on_validation_epoch_end(self):
-        f1_fin_val = np.array(self.validation_step_outputs).mean()
-        self.validation_step_outputs.clear()
+        all_mask = torch.cat(self.validation_step_outputs_mask)
+        all_pre = torch.cat(self.validation_step_outputs_pre)
+
+        f1_fin_val = self.f1_func(all_pre, all_mask)
+
+        self.validation_step_outputs_mask.clear()
+        self.validation_step_outputs_pre.clear()
 
         self.log(
             "score_f1_val",
