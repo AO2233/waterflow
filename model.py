@@ -10,6 +10,7 @@ from transformers import Swinv2Config, Swinv2Model
 from torch import nn
 from transformers import get_cosine_schedule_with_warmup
 from tool import f1_func
+import torch
 
 
 def loss_warp(output, mask):
@@ -53,11 +54,8 @@ class SARModel(L.LightningModule):
         output = self.model(image)
         train_loss = self.loss_fn(output, mask)
 
-        sig_mask = output.sigmoid() > 0.5
-        pred_mask = (sig_mask).float()
-        f1_score = f1_func(pred_mask.flatten(), mask.flatten())
-
-        self.train_step_outputs.append(f1_score.cpu())
+        self.train_step_outputs.append(output.detach().cpu())
+        self.train_labels.append(mask)
 
         self.log(
             "train_loss",
@@ -75,11 +73,8 @@ class SARModel(L.LightningModule):
         output = self.model(image)
         val_loss = self.loss_fn(output, mask)
 
-        sig_mask = output.sigmoid() > 0.5
-        pred_mask = (sig_mask).float()
-        f1_score = f1_func(pred_mask.flatten(), mask.flatten())
-
-        self.validation_step_outputs.append(f1_score.cpu())
+        self.validation_step_outputs.append(output.detach().cpu())
+        self.validation_labels.append(mask)
 
         self.log(
             "val_loss",
@@ -92,8 +87,11 @@ class SARModel(L.LightningModule):
         return val_loss
 
     def on_train_epoch_end(self):
-        f1_fin_train = np.array(self.train_step_outputs).mean()
+        pred=torch.cat(self.train_step_outputs).flatten()
+        pred=(pred.sigmoid()>0.5).float()
+        f1_fin_train = f1_func(pred, self.train_mask.flatten())
         self.train_step_outputs.clear()
+        self.train_mask.clear()
 
         self.log(
             "score_f1_train",
@@ -104,8 +102,11 @@ class SARModel(L.LightningModule):
         )
 
     def on_validation_epoch_end(self):
-        f1_fin_val = np.array(self.validation_step_outputs).mean()
+        pred=torch.cat(self.validation_step_outputs).flatten()
+        pred=(pred.sigmoid()>0.5).float()
+        f1_fin_val = f1_func(pred, self.validation_mask.flatten())
         self.validation_step_outputs.clear()
+        self.validation_mask.clear()
 
         self.log(
             "score_f1_val",
