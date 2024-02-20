@@ -148,4 +148,5 @@ if __name__ == "__main__":
             model=model, train_dataloaders=train_loader, val_dataloaders=val_loader
         )
 
+        wandb.finish()
         # print(trainer.max_steps)
