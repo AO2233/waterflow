@@ -13,6 +13,7 @@ from lightning.pytorch.callbacks import (
     RichModelSummary,
     RichProgressBar,
 )
+import wandb
 
 
 # -------- 设置 ---------
@@ -132,5 +133,5 @@ if __name__ == "__main__":
     )
 
     trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=val_loader)
-
+    wandb.finish()
     # print(trainer.max_steps)

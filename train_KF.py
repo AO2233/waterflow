@@ -28,7 +28,7 @@ test_data_p = project_p + "data/Track1/val/images/"
 
 
 # --------- 参数 ---------
-max_ep = 360
+max_ep = 300
 val_rate = 0.1
 batch_size = 4
 
@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
         # ------ wandb --------
         wandb_logger = WandbLogger(
-            project="KFP",
+            project="ema-new-KFP",
             # log_model="all",
             name=f"KF{i}",
         )
