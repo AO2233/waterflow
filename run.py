@@ -25,12 +25,15 @@ test_data_p = project_p + "data/Track1/val/images/"
 dev_data_p = project_p + "data/dev/p1"
 
 # ---- infer -----
-th = 0.5
+th = 0.1
 batch_size = 16
 # ckpt
 model_p_list = [
-    "/home/ao/Desktop/ieee/rubbish/sar/c5aht82z/checkpoints/epoch=287-step=105696.ckpt",
-    "/home/ao/Desktop/ieee/rubbish/sar/lt2zc1hj/checkpoints/epoch=227-step=83676.ckpt",
+    "/home/ao/Desktop/ieee/rubbish/ema-new-KFP/665fzo1b/checkpoints/val_score_fold0_epoch=262-val_loss=0.0921-score_f1_val=0.9398.ckpt",
+    # '/home/ao/Desktop/ieee/rubbish/ema-new-KFP/7ohddt21/checkpoints/val_score_fold2_epoch=162-val_loss=0.1199-score_f1_val=0.9091.ckpt',
+    # '/home/ao/Desktop/ieee/rubbish/ema-new-KFP/g58gxa3u/checkpoints/val_score_fold4_epoch=233-val_loss=0.0808-score_f1_val=0.9301.ckpt',
+    # '/home/ao/Desktop/ieee/rubbish/ema-new-KFP/pimbrg8x/checkpoints/val_score_fold3_epoch=283-val_loss=0.1028-score_f1_val=0.9105.ckpt',
+    "/home/ao/Desktop/ieee/rubbish/ema-new-KFP/zgiqcalm/checkpoints/val_score_fold1_epoch=218-val_loss=0.0944-score_f1_val=0.9418.ckpt",
 ]
 
 

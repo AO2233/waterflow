@@ -11,6 +11,7 @@ from torch import nn
 import torch
 from transformers import get_cosine_schedule_with_warmup
 from ema import EMAOptimizer
+from lightning.pytorch.utilities import grad_norm
 
 
 def loss_warp(output, mask):
@@ -49,6 +50,12 @@ class SARModel(L.LightningModule):
     def forward(self, batch):
         output = self.model(batch[0])
         return output
+
+    def on_before_optimizer_step(self, optimizer):
+        norm_type = 2
+        norms_dict = grad_norm(self.layer, norm_type=norm_type)
+        grad = norms_dict[f"grad_{float(norm_type)}_norm_total"]
+        self.log(f"grad_norm_{norm_type}", grad)
 
     def training_step(self, batch, batch_idx):
         # sar, mask, idx
@@ -134,7 +141,7 @@ class SARModel(L.LightningModule):
 
     def configure_optimizers(self):
         optimizer = optim.AdamW(self.parameters(), lr=4e-5, weight_decay=4e-3)
-        optimizer= EMAOptimizer(optimizer=optimizer,device=torch.device('cuda'))
+        optimizer = EMAOptimizer(optimizer=optimizer, device=torch.device("cuda"))
 
         scheduler = get_cosine_schedule_with_warmup(
             optimizer,
